@@ -112,9 +112,9 @@
     "href": "assignments/assignment-1.html",
     "title": "Assignment 1",
     "section": "",
-    "text": "1 + 1\n\n[1] 2\n\n\nMy first assignment has two parts.",
+    "text": "library(dslabs)\ndata(\"polls_us_election_2016\")\n\n\nmy_first &lt;- \"Pinar\"\nmy_birth_year &lt;- 1997 \n\n# k sayısını hesapla [cite: 59]\nk &lt;- (nchar(my_first) + my_birth_year) %% 15 + 8\n\nMy first assignment has two parts.",
     "crumbs": [
-      "Assignment 1"
+      "mtcars veri seti R'da varsayılan olarak bulunur"
     ]
   },
   {
@@ -125,6 +125,66 @@
     "text": "Assignment 2\n\n1 + 1\n\n[1] 2\n\n\n\n\n\n\n Back to top",
     "crumbs": [
       "Assignment 2"
+    ]
+  },
+  {
+    "objectID": "assignments/assignment-1.html#a-video-özeti",
+    "href": "assignments/assignment-1.html#a-video-özeti",
+    "title": "Assignment 1",
+    "section": "(a) Video Özeti",
+    "text": "(a) Video Özeti\nSeçilen Konu: Veri Biliminde Hayatta Kalma Yanlılılığı (Survivor Bias) ve Abraham Wald Örneği.\nÖzet: Veri biliminde sadece “başarılı” veya “geri dönebilen” verilere odaklanmak, hatalı sonuçlara yol açabilir. II. Dünya Savaşı sırasında Abraham Wald, bombardıman uçaklarının korunması için mermi izi olan yerlere değil, mermi izi olmayan yerlere zırh takılmasını önermiştir. Bunun sebebi, mermi izi olmayan yerlerden darbe alan uçakların geri dönemeyip düşmüş olmasıdır. Bu durum “hayatta kalma yanlılılığı” (survivor bias) kavramının en klasik örneğidir.",
+    "crumbs": [
+      "title: \"Assignment 1\""
+    ]
+  },
+  {
+    "objectID": "assignments/assignment-1.html#b-sorular",
+    "href": "assignments/assignment-1.html#b-sorular",
+    "title": "Assignment 1",
+    "section": "(b) Sorular",
+    "text": "(b) Sorular\nAçık Uçlu Soru: Veri bilimi projelerinde endüstri mühendislerinin temel avantajı nedir? Cevap: İş süreçlerini ve problemleri matematiksel bir bakış açısıyla modelleyebilme yetenekleridir.\nÇoktan Seçmeli Soru: Videoda hangi dillerin önemi vurgulanmıştır? A) Sadece Java B) R ve Python C) Sadece C++ D) Hiçbiri Cevap: B",
+    "crumbs": [
+      "title: \"Assignment 1\""
+    ]
+  },
+  {
+    "objectID": "assignments/assignment-1.html#c-istatistiksel-özetler",
+    "href": "assignments/assignment-1.html#c-istatistiksel-özetler",
+    "title": "Assignment 1",
+    "section": "(c) İstatistiksel Özetler",
+    "text": "(c) İstatistiksel Özetler\nBu bölümde mtcars veri seti üzerinde compute_stats fonksiyonu kullanılarak çeşitli istatistiksel hesaplamalar yapılmıştır.\n# 1. Custom summary function\ncompute_stats &lt;- function(x) {\n  if (!is.numeric(x)) return(NULL)\n  \n  stats &lt;- list(\n    mean     = mean(x, na.rm = TRUE),\n    median   = median(x, na.rm = TRUE),\n    variance = var(x, na.rm = TRUE),\n    iqr      = IQR(x, na.rm = TRUE),\n    min      = min(x, na.rm = TRUE),\n    max      = max(x, na.rm = TRUE)\n  )\n  return(stats)\n}\n\n# 2. For Loop ile Uygulama\ncat(\"--- For Loop Sonuçları ---\\n\")\nfor (col_name in names(mtcars)) {\n  cat(\"\\nSütun:\", col_name, \"\\n\")\n  print(compute_stats(mtcars[[col_name]]))\n}\n\n# 3. sapply ile Uygulama\ncat(\"\\n--- sapply Sonuçları ---\\n\")\nres_sapply &lt;- sapply(mtcars, compute_stats, simplify = FALSE)\nprint(res_sapply)\n\n# 4. apply ile Uygulama\ncat(\"\\n--- apply Sonuçları ---\\n\")\nres_apply &lt;- apply(as.matrix(mtcars), 2, compute_stats)\nprint(res_apply)",
+    "crumbs": [
+      "title: \"Assignment 1\""
+    ]
+  },
+  {
+    "objectID": "assignments/assignment-1.html#d-veri-manipülasyonu",
+    "href": "assignments/assignment-1.html#d-veri-manipülasyonu",
+    "title": "Assignment 1",
+    "section": "(d) Veri Manipülasyonu",
+    "text": "(d) Veri Manipülasyonu\nBurada hazırladığın başlangıç kodunu kullanarak veri analizi adımlarını tamamlıyoruz.\n\n\nlibrary(dslabs)\ndata(\"polls_us_election_2016\")\n\nmy_first &lt;- \"Pinar\"\nmy_birth_year &lt;- 1997 \n\n# k sayısını hesapla\nk &lt;- (nchar(my_first) + my_birth_year) %% 15 + 8\n\nprint(paste(\"Hesaplanan k değeri:\", k))\n\n# ÖDEV KURALI: k kuralına göre ilk veya son satırları göster\nif (k %% 2 == 0) {\n  print(head(polls_us_election_2016, k))\n} else {\n  print(tail(polls_us_election_2016, k))\n}\n\n# NA (Eksik Veri) Analizi\nprint(paste(\"Toplam NA sayısı:\", sum(is.na(polls_us_election_2016))))\nprint(\"En fazla NA içeren ilk 8 sütun:\")\nna_counts &lt;- sort(colSums(is.na(polls_us_election_2016)), decreasing = TRUE)\nprint(head(na_counts, 8))\n\n# NA Değerlerini Değiştirme (Kurala Göre)\nnew_data &lt;- polls_us_election_2016\nfor(i in 1:ncol(new_data)) {\n  if(is.numeric(new_data[[i]])) {\n    new_data[[i]][is.na(new_data[[i]])] &lt;- my_birth_year + k\n  } else {\n    new_data[[i]] &lt;- as.character(new_data[[i]])\n    new_data[[i]][is.na(new_data[[i]])] &lt;- paste0(my_first, \"_\", k)\n  }\n}\n\n# Yeni Veri Seti Çıktıları\nprint(\"Yeni Veri Seti (k satır):\")\nif (k %% 2 == 0) {\n  print(head(new_data, k))\n} else {\n  print(tail(new_data, k))\n}\n\nprint(paste(\"Yeni veri setinde kalan NA sayısı:\", sum(is.na(new_data))))\nprint(paste(\"anyNA kontrolü (FALSE olmalı):\", anyNA(new_data)))",
+    "crumbs": [
+      "title: \"Assignment 1\""
+    ]
+  },
+  {
+    "objectID": "assignments/assignment-1.html#b-sorular-ve-cevaplar",
+    "href": "assignments/assignment-1.html#b-sorular-ve-cevaplar",
+    "title": "Assignment 1",
+    "section": "(b) Sorular ve Cevaplar",
+    "text": "(b) Sorular ve Cevaplar\nGörsellerde yer alan sınav soruları ve doğru cevapları aşağıda sunulmuştur:\nSoru 1: II. Dünya Savaşı sırasında Abraham Wald, bombardıman uçaklarının korunması için hangi karşı-sezgisel (counter-intuitive) öneride bulunmuştur?\n\nCevap: Üzerinde hiç mermi izi bulunmayan bölgelerin zırhlanması.\nNeden: Wald, geri dönebilen uçakların mermi izi olmayan yerlerden vurulmadığını, buralardan vurulanların düştüğünü fark ederek “hayatta kalma yanlılılığı” problemini çözmüştür.\n\nSoru 2: Model değerlendirme aşamasında karşılaşılan ‘ezberleme’ problemi, literatürde hangi terimle ifade edilir?\n\nCevap: Overfitting (Aşırı Uyum).\n\nSoru 3: Otonom araçların karıştığı trafik kazalarında ‘Etik ve Hukuki’ kararların verilmesi konusunda sunumda hangi vurgu yapılmıştır?\n\nCevap: Bu tarz felsefi ve etik soruların sadece veri bilimi ile çözülemeyeceği, insan faktörünün gerekliliği.",
+    "crumbs": [
+      "title: \"Assignment 1\""
+    ]
+  },
+  {
+    "objectID": "assignments/assignment-1.html#d-veri-manipülasyonu-kişisel-bilgiler",
+    "href": "assignments/assignment-1.html#d-veri-manipülasyonu-kişisel-bilgiler",
+    "title": "Assignment 1",
+    "section": "(d) Veri Manipülasyonu (Kişisel Bilgiler)",
+    "text": "(d) Veri Manipülasyonu (Kişisel Bilgiler)\nKullanıcı adı “Pinar” ve doğum yılı “1997” bilgilerine göre hesaplamalar yapılmıştır.\n#| message: false\nlibrary(dslabs)\ndata(\"polls_us_election_2016\")\n\n# Kişisel Bilgiler\nmy_first &lt;- \"Pinar\"\nmy_birth_year &lt;- 1997\n\n# k Değerinin Hesaplanması\nk &lt;- (nchar(my_first) + my_birth_year) %% 15 + 8\ncat(\"Hesaplanan k değeri:\", k, \"\\n\")\n\n# k değerine göre ilk veya son satırları göster\nif (k %% 2 == 0) {\n  cat(\"\\nİlk\", k, \"satır (k çift):\\n\")\n  print(head(polls_us_election_2016, k))\n} else {\n  cat(\"\\nSon\", k, \"satır (k tek):\\n\")\n  print(tail(polls_us_election_2016, k))\n}\n\n# NA Değerlerinin Analizi\ntotal_na &lt;- sum(is.na(polls_us_election_2016))\ncat(\"\\nToplam NA sayısı:\", total_na, \"\\n\")\n\nna_per_col &lt;- sort(colSums(is.na(polls_us_election_2016)), decreasing = TRUE)\ncat(\"\\nEn çok NA içeren ilk 8 sütun:\\n\")\nprint(head(na_per_col, 8))\n\n# NA Değerlerini Değiştirme\nnew_data &lt;- polls_us_election_2016\n\nfor (i in seq_along(new_data)) {\n  if (is.numeric(new_data[[i]])) {\n    new_data[[i]][is.na(new_data[[i]])] &lt;- my_birth_year + k\n  } else {\n    new_data[[i]] &lt;- as.character(new_data[[i]])\n    new_data[[i]][is.na(new_data[[i]])] &lt;- paste0(my_first, \"_\", k)\n  }\n}\n\n# Yeni Veri Seti Kontrolleri\ncat(\"\\nYeni veri setinden k satir:\\n\")\nif (k %% 2 == 0) {\n  print(head(new_data, k))\n} else {\n  print(tail(new_data, k))\n}\n\ncat(\"\\nYeni veri setinde kalan NA sayisi:\", sum(is.na(new_data)), \"\\n\")\ncat(\"anyNA sonucu (FALSE olmali):\", anyNA(new_data), \"\\n\")",
+    "crumbs": [
+      "title: \"Assignment 1\""
     ]
   }
 ]

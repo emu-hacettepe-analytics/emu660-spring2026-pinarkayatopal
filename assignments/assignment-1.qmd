@@ -1,15 +1,125 @@
----
-title: "Assignment 1"
----
+## title: "Assignment 1"
 
 # Assignment 1
 
-```{r}
-1 + 1
+Bu ödev, EMU660 dersi kapsamında veri bilimi kavramları ve R programlama yetkinliklerini ölçmek amacıyla hazırlanmıştır.
+
+## (a) Video Özeti
+
+**Seçilen Konu:** Veri Biliminde Hayatta Kalma Yanlılılığı (Survivor Bias) ve Abraham Wald Örneği.
+
+**Özet:** Veri biliminde sadece "başarılı" veya "geri dönebilen" verilere odaklanmak, hatalı sonuçlara yol açabilir. II. Dünya Savaşı sırasında Abraham Wald, bombardıman uçaklarının korunması için mermi izi olan yerlere değil, mermi izi olmayan yerlere zırh takılmasını önermiştir. Bunun sebebi, mermi izi olmayan yerlerden darbe alan uçakların geri dönemeyip düşmüş olmasıdır. Bu durum "hayatta kalma yanlılılığı" (survivor bias) kavramının en klasik örneğidir.
+
+## (b) Sorular ve Cevaplar
+
+Görsellerde yer alan sınav soruları ve doğru cevapları aşağıda sunulmuştur:
+
+**Soru 1:** II. Dünya Savaşı sırasında Abraham Wald, bombardıman uçaklarının korunması için hangi karşı-sezgisel (counter-intuitive) öneride bulunmuştur?
+
+-   **Cevap:** Üzerinde hiç mermi izi bulunmayan bölgelerin zırhlanması.
+
+-   **Neden:** Wald, geri dönebilen uçakların mermi izi olmayan yerlerden vurulmadığını, buralardan vurulanların düştüğünü fark ederek "hayatta kalma yanlılılığı" problemini çözmüştür.
+
+**Soru 2:** Model değerlendirme aşamasında karşılaşılan 'ezberleme' problemi, literatürde hangi terimle ifade edilir?
+
+-   **Cevap:** Overfitting (Aşırı Uyum).
+
+**Soru 3:** Otonom araçların karıştığı trafik kazalarında 'Etik ve Hukuki' kararların verilmesi konusunda sunumda hangi vurgu yapılmıştır?
+
+-   **Cevap:** Bu tarz felsefi ve etik soruların sadece veri bilimi ile çözülemeyeceği, insan faktörünün gerekliliği.
+
+## (c) İstatistiksel Özetler
+
+Bu bölümde `mtcars` veri seti üzerinde `compute_stats` fonksiyonu kullanılarak çeşitli istatistiksel hesaplamalar yapılmıştır.
+
+```         
+# 1. Custom summary function
+compute_stats <- function(x) {
+  if (!is.numeric(x)) return(NULL)
+  
+  stats <- list(
+    mean     = mean(x, na.rm = TRUE),
+    median   = median(x, na.rm = TRUE),
+    variance = var(x, na.rm = TRUE),
+    iqr      = IQR(x, na.rm = TRUE),
+    min      = min(x, na.rm = TRUE),
+    max      = max(x, na.rm = TRUE)
+  )
+  return(stats)
+}
+
+# 2. For Loop ile Uygulama
+cat("--- For Loop Sonuçları ---\n")
+for (col_name in names(mtcars)) {
+  cat("\nSütun:", col_name, "\n")
+  print(compute_stats(mtcars[[col_name]]))
+}
+
+# 3. sapply ile Uygulama
+cat("\n--- sapply Sonuçları ---\n")
+res_sapply <- sapply(mtcars, compute_stats, simplify = FALSE)
+print(res_sapply)
+
+# 4. apply ile Uygulama
+cat("\n--- apply Sonuçları ---\n")
+res_apply <- apply(as.matrix(mtcars), 2, compute_stats)
+print(res_apply)
 ```
 
-My first assignment has two parts.
+## (d) Veri Manipülasyonu (Kişisel Bilgiler)
 
-## (a)
+Kullanıcı adı "Pinar" ve doğum yılı "1997" bilgilerine göre hesaplamalar yapılmıştır.
 
-## (b)
+```         
+#| message: false
+library(dslabs)
+data("polls_us_election_2016")
+
+# Kişisel Bilgiler
+my_first <- "Pinar"
+my_birth_year <- 1997
+
+# k Değerinin Hesaplanması
+k <- (nchar(my_first) + my_birth_year) %% 15 + 8
+cat("Hesaplanan k değeri:", k, "\n")
+
+# k değerine göre ilk veya son satırları göster
+if (k %% 2 == 0) {
+  cat("\nİlk", k, "satır (k çift):\n")
+  print(head(polls_us_election_2016, k))
+} else {
+  cat("\nSon", k, "satır (k tek):\n")
+  print(tail(polls_us_election_2016, k))
+}
+
+# NA Değerlerinin Analizi
+total_na <- sum(is.na(polls_us_election_2016))
+cat("\nToplam NA sayısı:", total_na, "\n")
+
+na_per_col <- sort(colSums(is.na(polls_us_election_2016)), decreasing = TRUE)
+cat("\nEn çok NA içeren ilk 8 sütun:\n")
+print(head(na_per_col, 8))
+
+# NA Değerlerini Değiştirme
+new_data <- polls_us_election_2016
+
+for (i in seq_along(new_data)) {
+  if (is.numeric(new_data[[i]])) {
+    new_data[[i]][is.na(new_data[[i]])] <- my_birth_year + k
+  } else {
+    new_data[[i]] <- as.character(new_data[[i]])
+    new_data[[i]][is.na(new_data[[i]])] <- paste0(my_first, "_", k)
+  }
+}
+
+# Yeni Veri Seti Kontrolleri
+cat("\nYeni veri setinden k satir:\n")
+if (k %% 2 == 0) {
+  print(head(new_data, k))
+} else {
+  print(tail(new_data, k))
+}
+
+cat("\nYeni veri setinde kalan NA sayisi:", sum(is.na(new_data)), "\n")
+cat("anyNA sonucu (FALSE olmali):", anyNA(new_data), "\n")
+```
