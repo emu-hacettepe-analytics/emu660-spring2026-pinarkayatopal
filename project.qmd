@@ -15,25 +15,44 @@ The scope of this project is to analyze the historical occupancy rates of Ankara
 
 # 2. Data
 
+## 2.1 Data Source
+
 The primary data for this study is retrieved from the ASKİ (Ankara Water and Sewerage Administration) Transparency Portal. The portal provides daily updated metrics regarding the city's water supply, ensuring the data is both authentic and authoritative.
 
 Access Link: ASKİ Transparency Portal
 
-## 2.1 Data Source
-
-xxxxxx
-
 ## 2.2 General Information About Data
 
-xxxxxx
+The dataset contains daily records of Ankara’s reservoirs. Key features include:
+Date: The specific day of measurement.
+Total Capacity: The maximum volume the reservoirs can hold ($m^3$).
+Occupancy Rate (%): The percentage of the total capacity currently filled.
+Active Volume: The usable portion of water stored in the dams ($m^3$).,
+Daily Consumption: The amount of water distributed to the city on that specific day.
 
 ## 2.3 Reason of Choice
 
-xxxxxx
+I chose this dataset for several strategic reasons:
+
+Relevance: As an Industrial Engineer based in Ankara, resource optimization—especially for a vital resource like water—is a core area of interest.
+
+Complexity: The data exhibits strong seasonal patterns and potential long-term trends, making it an excellent candidate for advanced statistical analysis in R.
+
+Public Impact: Identifying potential water shortages before they occur is a proactive solution to a systemic urban challenge.
 
 ## 2.4 Preprocessing
 
-xxxxxx
+Although the raw data is provided in structured formats (Excel/CSV), several preprocessing steps are required before analysis:
+
+Data Integration: Combining monthly reports into a single time-series dataframe.
+
+Type Conversion: Converting date strings into Date objects and ensuring occupancy rates are treated as numeric variables.
+
+Cleaning: Handling any missing values or anomalies in the daily reporting using dplyr and !is.na() logic.
+
+Feature Engineering: Creating "Season" and "Month" columns to facilitate categorical comparison.
+
+Final Export: Saving the cleaned environment as a .RData file for seamless loading in subsequent analysis steps.
 
 # 3. Analysis
 
@@ -41,15 +60,15 @@ xxxxxx
 
 ## 3.1 Exploratory Data Analysis
 
-xxxxxx
+In this section, we will visualize the distribution of water levels and use histograms to identify the variance in occupancy rates. We will also utilize line plots to compare year-over-year performance to see how 2026 compares to previous decades.
 
 ## 3.2 Trend Analysis
 
-xxxxxx
+We will analyze the "long-term" movement of water levels to see if there is a statistically significant decrease in average occupancy over the last 10 years, independent of seasonal rains.
 
 ## 3.3 Model Fitting
 
-xxxxxx
+Using R’s decomposition tools, we will separate the "noise" and "trends" from the "seasonal" components. This will allow us to see exactly how much of our water gain is purely seasonal (spring snowmelt) vs. sustainable long-term accumulation.
 
 ## 3.4 Results
 
