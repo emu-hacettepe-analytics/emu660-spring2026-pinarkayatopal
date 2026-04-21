@@ -1,20 +1,23 @@
 ---
-title: "Project X"
+title: "Project Ankara Water Reservoir Analysis"
 ---
 
 Welcome to my/our project page.
 
 Keep an eye on this space to stay updated with my project activities.
 
-(The titles below are provided as examples; please feel free to adjust them as necessary.)
 
 # 1. Project Overview and Scope
 
-xxxxxx
+Water management is not just an environmental concern; it is a critical optimization problem for any metropolitan city. Ankara, with its growing population and fluctuating precipitation patterns, requires a data-driven approach to ensure long-term water security.
+
+The scope of this project is to analyze the historical occupancy rates of Ankara’s dam system. By transforming raw data into actionable insights, we aim to move beyond simple observation and provide a structured look at the city's water availability trends from 2015 to the present. The ultimate goal is to identify patterns that can assist in future urban planning and resource allocation.
 
 # 2. Data
 
-xxxxxx
+The primary data for this study is retrieved from the ASKİ (Ankara Water and Sewerage Administration) Transparency Portal. The portal provides daily updated metrics regarding the city's water supply, ensuring the data is both authentic and authoritative.
+
+Access Link: ASKİ Transparency Portal
 
 ## 2.1 Data Source
 
