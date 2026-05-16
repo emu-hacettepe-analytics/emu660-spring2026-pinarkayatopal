@@ -66,7 +66,7 @@ Integration: Hourly metrics were aggregated into daily and monthly averages wher
 ## 3.1 Exploratory Data Analysis
 
 In this section, the general structure of the dataset was examined. Hourly observations revealed the daily consumption habits of the Turkish electricity grid and how various power sources respond to this demand. The initial statistical checks involved cleaning missing values, detecting outliers, and determining the general distribution of energy generation sources to ensure data integrity.
-
+Hourly Trend
 ```{r}
 #Gün içindeki değişim (Saatlik Trend)
 # Saatlik ortalama üretimi hesaplayalım
@@ -86,7 +86,26 @@ ggplot(hourly_trend, aes(x = Saat, y = Ortalama_Toplam_Uretim)) +
        y = "Ortalama Üretim (MWh)") +
   theme_minimal()
 ```
+Montyly trend
+```{r}
+# 1. Aylık ortalama üretimi hesaplayalım
+monthly_trend <- Electricity %>%
+  mutate(Ay = month(Tarih, label = TRUE, abbr = TRUE, locale = "English")) %>% # Ay isimlerini İngilizce kısaltma yapar
+  group_by(Ay) %>%
+  summarise(Aylik_Toplam_Uretim = mean(Toplam, na.rm = TRUE))
 
+# 2. Görselleştirme
+ggplot(monthly_trend, aes(x = Ay, y = Aylik_Toplam_Uretim, group = 1)) + # Çizgi çizmesi için group = 1 ekledik
+  geom_line(color = "steelblue", size = 1) +
+  geom_point(color = "red") +
+  # scale_x_datetime yerine artık kategorik (discrete) bir eksenimiz olduğu için düzeltiyoruz:
+  labs(title = "Aylara Gore Toplam Elektrik Uretimi",
+       subtitle = "Mevsimsel Değişim Analizi",
+       x = "Ay",
+       y = "Toplam Üretim (MWh)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
 ## 3.2 Clustering Analysis
 
 Using the K-Means Clustering algorithm—an unsupervised learning method discussed in the Week 10 lecture notes—generation days were classified based on their characteristic production compositions. The analysis grouped the days into three main clusters: "Renewable Heavy," "Fossil Fuel Dominant," and "Balanced/Baseload." This classification statistically demonstrates how the grid shifts its operational modes under different weather conditions and demand levels.
