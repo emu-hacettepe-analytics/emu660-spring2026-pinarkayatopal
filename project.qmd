@@ -1,7 +1,10 @@
 ---
 title: "An Analytical Investigation of Türkiye’s Electricity Generation Dynamics and Renewable Energy Integration (2025-2026)"
+format:
+  html:
+    code-fold: true
+    code-summary: "Kodu Göster"
 ---
-
 Welcome to my/our project page.
 
 Keep an eye on this space to stay updated with my project activities.
@@ -64,12 +67,7 @@ Integration: Hourly metrics were aggregated into daily and monthly averages wher
 
 In this section, the general structure of the dataset was examined. Hourly observations revealed the daily consumption habits of the Turkish electricity grid and how various power sources respond to this demand. The initial statistical checks involved cleaning missing values, detecting outliers, and determining the general distribution of energy generation sources to ensure data integrity.
 
----
-title: "Hourly Trend"
-format:
-  html:
-    code-fold: true
-    code-summary: "Kodu Göster"
+```{r}
 #Gün içindeki değişim (Saatlik Trend)
 # Saatlik ortalama üretimi hesaplayalım
 hourly_trend <- Electricity %>%
@@ -86,9 +84,7 @@ ggplot(hourly_trend, aes(x = Saat, y = Ortalama_Toplam_Uretim)) +
        subtitle = "Ocak 2025 - Mayıs 2026 Dönemi",
        x = "Günün Saati (0-23)",
        y = "Ortalama Üretim (MWh)") +
-  theme_minimal()
-
----
+  theme_minimal()'''
 
 ## 3.2 Clustering Analysis
 
