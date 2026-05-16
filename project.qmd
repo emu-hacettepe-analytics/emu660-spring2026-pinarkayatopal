@@ -23,6 +23,9 @@ Access Link: ASKİ Transparency Portal
 
 ## 2.2 General Information About Data
 
+![Fotoğraf Alt Yazısı](assets/clustring.png)
+
+
 The dataset contains daily records of Ankara’s reservoirs. Key features include:
 Date: The specific day of measurement.
 Total Capacity: The maximum volume the reservoirs can hold ($m^3$).
