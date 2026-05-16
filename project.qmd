@@ -25,6 +25,7 @@ Access Link: ASKİ Transparency Portal
 
 ![Fotoğraf Alt Yazısı](assets/wind time series)
 ![](./assets/clustring.png)
+![](assets/clustring..png)
 
 
 
