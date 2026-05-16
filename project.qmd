@@ -23,7 +23,7 @@ Access Link: ASKİ Transparency Portal
 
 ## 2.2 General Information About Data
 
-![Fotoğraf Alt Yazısı](assets/wind time series_.png)
+![Fotoğraf Alt Yazısı](assets/wind time series)
 ![](./assets/clustring.png)
 
 
