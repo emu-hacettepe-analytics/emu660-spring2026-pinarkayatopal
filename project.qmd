@@ -64,6 +64,32 @@ Integration: Hourly metrics were aggregated into daily and monthly averages wher
 
 In this section, the general structure of the dataset was examined. Hourly observations revealed the daily consumption habits of the Turkish electricity grid and how various power sources respond to this demand. The initial statistical checks involved cleaning missing values, detecting outliers, and determining the general distribution of energy generation sources to ensure data integrity.
 
+---
+title: "Hourly Trend"
+format:
+  html:
+    code-fold: true
+    code-summary: "Kodu Göster"
+#Gün içindeki değişim (Saatlik Trend)
+# Saatlik ortalama üretimi hesaplayalım
+hourly_trend <- Electricity %>%
+  mutate(Saat = hour(Tarih)) %>% 
+  group_by(Saat) %>%
+  summarise(Ortalama_Toplam_Uretim = mean(Toplam, na.rm = TRUE))
+
+# Görselleştirme
+ggplot(hourly_trend, aes(x = Saat, y = Ortalama_Toplam_Uretim)) +
+  geom_line(color = "darkblue", size = 1) +
+  geom_point(color = "red") +
+  scale_x_continuous(breaks = 0:23) + # X eksenini 0'dan 23'e kadar gösterir
+  labs(title = "Gün İçinde Ortalama Elektrik Üretimi (Saatlik)",
+       subtitle = "Ocak 2025 - Mayıs 2026 Dönemi",
+       x = "Günün Saati (0-23)",
+       y = "Ortalama Üretim (MWh)") +
+  theme_minimal()
+
+---
+
 ## 3.2 Clustering Analysis
 
 Using the K-Means Clustering algorithm—an unsupervised learning method discussed in the Week 10 lecture notes—generation days were classified based on their characteristic production compositions. The analysis grouped the days into three main clusters: "Renewable Heavy," "Fossil Fuel Dominant," and "Balanced/Baseload." This classification statistically demonstrates how the grid shifts its operational modes under different weather conditions and demand levels.
