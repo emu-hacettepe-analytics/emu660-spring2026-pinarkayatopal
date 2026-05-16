@@ -86,7 +86,7 @@ ggplot(hourly_trend, aes(x = Saat, y = Ortalama_Toplam_Uretim)) +
        y = "Ortalama Üretim (MWh)") +
   theme_minimal()
 ```
-Montyly trend
+Monthly trend
 ```{r}
 # 1. Aylık ortalama üretimi hesaplayalım
 monthly_trend <- Electricity %>%
@@ -110,27 +110,250 @@ ggplot(monthly_trend, aes(x = Ay, y = Aylik_Toplam_Uretim, group = 1)) + # Çizg
 
 Using the K-Means Clustering algorithm—an unsupervised learning method discussed in the Week 10 lecture notes—generation days were classified based on their characteristic production compositions. The analysis grouped the days into three main clusters: "Renewable Heavy," "Fossil Fuel Dominant," and "Balanced/Baseload." This classification statistically demonstrates how the grid shifts its operational modes under different weather conditions and demand levels.
 
+```{r}
+library(tidyverse)
+library(cluster)    # Kümeleme algoritmaları için
+library(factoextra) # Görselleştirme için
+
+# 1. Veriyi Günlük Bazda Hazırlama
+# Her gün için kaynakların ortalama üretim miktarını hesaplıyoruz
+daily_composition <- Electricity_Cleaned %>%
+  group_by(Tarih) %>%
+  summarise(
+    Across_Sources = across(c(Dogal_Gas, Barajli, Ruzgar, Gunes, Ithal_Komur, Linyit), mean, na.rm = TRUE)
+  ) %>%
+  column_to_rownames("Tarih") # Tarihi satır ismi yapıyoruz (kümeleme için sayısal veri lazım)
+
+# 2. Veriyi Ölçeklendirme (Scaling)
+# Kaynakların üretim miktarları farklı ölçeklerde olduğu için standartlaştırıyoruz
+daily_scaled <- scale(daily_composition)
+
+# 3. K-Means Kümeleme (3 küme oluşturuyoruz: Yenilenebilir, Fosil, Karma)
+set.seed(123) # Sonuçların tekrarlanabilir olması için
+km_result <- kmeans(daily_scaled, centers = 3, nstart = 25)
+
+# 4. Küme Bilgilerini Veriye Ekleme
+daily_composition$Cluster <- as.factor(km_result$cluster)
+
+# 5. Kümeleri Yorumlamak İçin Ortalama Değerlere Bakma
+cluster_summary <- daily_composition %>%
+  group_by(Cluster) %>%
+  summarise(across(everything(), mean))
+
+print(cluster_summary)
+
+# 6. Görselleştirme
+fviz_cluster(km_result, data = daily_scaled,
+             palette = "jco",
+             geom = "point",
+             ellipse.type = "convex", 
+             ggtheme = theme_minimal(),
+             main = "Energy Production Composition Clusters")
+
+```
+
 ## 3.3 Time Series Analysis
 The time series analysis covering the 2025-2026 period models the seasonal and cyclical movements in energy production. Specifically, monthly observations clearly highlight demand peaks during the summer and winter months. By decomposing the trend and seasonality components of the series, the long-term projections of the grid and the stability of wind energy over time were evaluated.
+```{r}
+library(tidyverse)
+library(lubridate)
+library(zoo)
+
+# 1. Veriyi Hazırlama (İndeks bazlı: 1. sütun Tarih, 3. sütun Toplam Üretim)
+total_prod_data <- Electricity %>%
+  select(1, 3) %>% 
+  rename(date_col = 1, total_prod = 2) %>%
+  mutate(
+    date_col = as.POSIXct(date_col), # Zaman formatı doğrulaması
+    total_prod = replace_na(total_prod, 0)
+  ) %>%
+  # 7 günlük (168 saat) hareketli ortalama hesaplama
+  # Bu işlem günlük dalgalanmaları temizleyip genel trendi görmemizi sağlar [Hafta 12]
+  mutate(total_ma7 = rollmean(total_prod, k = 168, fill = NA, align = "right"))
+
+# 2. Görselleştirme
+ggplot(total_prod_data, aes(x = date_col)) +
+  # Saatlik Toplam Üretim (Mavi - Şeffaf / Arka Plan)
+  geom_line(aes(y = total_prod), color = "steelblue", alpha = 0.3) +
+  # 7 Günlük Hareketli Ortalama (Kırmızı - Kalın / Trend)
+  geom_line(aes(y = total_ma7), color = "darkred", size = 1.1) +
+  # X ekseni sınırlandırması (Mayıs 2026'ya kadar)
+  scale_x_datetime(
+    limits = c(as.POSIXct("2025-01-01"), as.POSIXct("2026-05-31")),
+    date_labels = "%b %Y", 
+    date_breaks = "3 months"
+  ) +
+  # Toplam üretim değerleri rüzgardan yüksek olduğu için Y eksenini dinamik bırakmak 
+  # veya veriye uygun genişletmek daha sağlıklıdır (Örn: 0 - 60.000)
+  scale_y_continuous(labels = scales::comma) + 
+  labs(
+    title = "Turkey Total Electricity Production Trend",
+    subtitle = "Hourly Total Generation vs. 7-Day Moving Average",
+    x = "Timeline",
+    y = "Total Production (MWh)"
+  ) +
+  theme_minimal()
+
+```
+```{r}
+#Rüzgar Enerjisi Üretimi Zaman Serisi
+library(tidyverse)
+library(lubridate)
+library(zoo)
+
+# 1. Veriyi Hazırlama (İndeks bazlı: 1. sütun Tarih, 8. sütun Rüzgar)
+wind_data <- Electricity %>%
+  select(1, 9) %>%
+  rename(date_col = 1, wind_prod = 2) %>%
+  mutate(
+    date_col = as.POSIXct(date_col), # Tarih formatından emin olalım
+    wind_prod = replace_na(wind_prod, 0)
+  ) %>%
+  # 7 günlük (168 saat) hareketli ortalama
+  mutate(wind_ma7 = rollmean(wind_prod, k = 168, fill = NA, align = "right"))
+
+# 2. Görselleştirme
+ggplot(wind_data, aes(x = date_col)) +
+  # Saatlik üretim (Mavi - Şeffaf)
+  geom_line(aes(y = wind_prod), color = "steelblue", alpha = 0.4) +
+  # 7 Günlük Hareketli Ortalama (Kırmızı - Kalın)
+  geom_line(aes(y = wind_ma7), color = "red", size = 1.1) +
+  # X eksenini Mayıs 2026'ya kadar sınırlandırma
+  scale_x_datetime(
+    limits = c(as.POSIXct("2025-01-01"), as.POSIXct("2026-05-31")),
+    date_labels = "%b %Y",
+    date_breaks = "3 months"
+  ) +
+  # Y ekseni sınırları
+  scale_y_continuous(limits = c(0, 12000), breaks = seq(0, 12000, 2000)) +
+  labs(
+    title = "Turkey Wind Power Generation Trend (Up to May 2026)",
+    subtitle = "Hourly Production vs. 7-Day Moving Average",
+    x = "Timeline",
+    y = "Production (MWh)"
+  ) +
+  theme_minimal()
+
+```
 
 ## 3.4 Analytical Differences: Wind vs. Total Demand
 
 This section specifically analyzes the relationship between wind energy production and total demand. The findings indicate that wind energy exhibits a unique character, independent of the fluctuations in total demand. While total demand is strictly tied to seasonal and hourly cycles, wind production offers a "clean and variable" baseload support to the grid, highlighting its potential to reduce dependency on fossil fuels.
 
+
+```{r}
+```
+
 ## 3.5 Correlation Analysis
 Pearson correlation coefficients were calculated to measure the interaction between different energy sources. The analysis revealed that Natural Gas and Dammed Hydroelectric sources have the highest positive correlation ($r > 0.70$) with total demand. This confirms that these resources act as the primary "balancing" elements in the system, rapidly increasing output during evening hours when solar generation declines to ensure grid security.
+
+```{r}
+library(tidyverse)
+library(corrplot)
+
+# 1. Veriyi hazırla
+cor_data <- Electricity_Cleaned %>%
+  select(3:19) %>%
+  drop_na() %>%
+  select(where(~ sd(.x, na.rm = TRUE) > 0))
+
+cor_matrix <- cor(cor_data)
+
+# 2. Görselleştirme (Okunabilirlik ayarları eklenmiş hali)
+# Grafik boyutunu  ayarlamak için:
+suppressWarnings({
+  corrplot(cor_matrix, 
+           method = "color", 
+           type = "upper", 
+           order = "hclust", 
+           # --- OKUNABİLİRLİK AYARLARI ---
+           addCoef.col = "black",      # Katsayıları yaz
+           number.cex = 0.6,           # Katsayı yazı boyutunu küçülttük (0.7 -> 0.6)
+           tl.cex = 0.8,               # Eksen isimlerini (Gunes, Linyit vb.) küçülttük
+           tl.col = "black", 
+           tl.srt = 45,                # Etiketleri 45 derece eğdik
+           cl.cex = 0.8,               # Sağdaki renk skalası yazı boyutu
+           # ----------------------------
+           diag = FALSE,
+           title = "Correlation of Energy Sources",
+           mar = c(0,0,2,0))           # Başlık için üstten biraz boşluk
+})
+
+```
 
 # 4. Results and Key Takeaways
 The analytical results of this study highlight three critical pillars of Türkiye’s current energy landscape:
 
 Renewable Energy Penetration: Quantitative analysis shows that the combined share of variable renewable energy sources (Wind + Solar) accounts for approximately 15.0% of the total generation during the 2025-2026 period. While this indicates progress toward green targets, it also underscores the significant remaining reliance on traditional sources for grid stability.
+```{r}
+library(tidyverse)
 
+# Veriyi yükle
+df <- read_csv("Electricity_Cleaned.csv")
+
+# 1. Ortalama Yüzde Payı Hesaplama
+renewables_share <- df %>%
+  mutate(RES_GES_Total = Ruzgar + Gunes) %>%
+  summarise(
+    Avg_Total = mean(Toplam, na.rm = TRUE),
+    Avg_RES_GES = mean(RES_GES_Total, na.rm = TRUE),
+    Percentage_Share = (Avg_RES_GES / Avg_Total) * 100
+  )
+
+cat("--- YENİLENEBİLİR ENERJİ PAYI ---\n")
+print(renewables_share)
+
+```
 Time-Critical Resource Dynamics: The hourly profile reveals a "critical transition window" during the evening hours (17:00 – 21:00). As solar generation (GES) declines to zero, Natural Gas and Dammed Hydroelectric units play a vital role, acting as flexible balancers to compensate for the sudden drop in renewable supply and meet the evening demand peak.
+```{r}
+#Saatlik Kaynak Değişimi
+library(tidyverse)
 
+# 1. Veriyi Hazırlama ve Gruplandırma
+# across içindeki listeleme sorununu önlemek için doğrudan isimlendirme yapıyoruz
+hourly_profile <- df %>%
+  group_by(Saat) %>%
+  summarise(
+    Dogal_Gas = mean(Dogal_Gas, na.rm = TRUE),
+    Barajli   = mean(Barajli, na.rm = TRUE),
+    Ruzgar    = mean(Ruzgar, na.rm = TRUE),
+    Gunes     = mean(Gunes, na.rm = TRUE),
+    Ithal_Komur = mean(Ithal_Komur, na.rm = TRUE),
+    .groups = "drop" # Gruplandırmayı temizleyerek ggplot'a hazır hale getirir
+  ) %>%
+  # Veriyi görselleştirme formatına (long format) çeviriyoruz
+  pivot_longer(cols = -Saat, names_to = "Source", values_to = "Avg_Production")
+
+# 2. Görselleştirme
+ggplot(hourly_profile, aes(x = Saat, y = Avg_Production, color = Source)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 2) + # Veri noktalarını belirginleştirir
+  scale_x_continuous(breaks = seq(0, 23, 2)) + # 2 saatte bir işaret koyar
+  scale_y_continuous(labels = scales::comma) + 
+  labs(title = "Hourly Average Energy Generation by Source",
+       subtitle = "Resource transition analysis: Solar drop vs. Thermal/Hydro compensation",
+       x = "Hour of Day (0-23)", 
+       y = "Average Production (MWh)",
+       color = "Generation Source") +
+  theme_minimal() +
+  theme(legend.position = "bottom") # Lejantı alta alarak grafiğe yer açar
+
+```
 Distinct Trends (2025-2026): The timeframe analysis exhibits a dual-peak seasonal trend, with maximum demand occurring during the summer (cooling-driven) and winter (heating-driven) months. Notably, wind generation has shown a more stable and predictable trend compared to previous years, increasingly serving as a reliable secondary baseload.
+```{r}
+# Trend Grafiği
+ggplot(monthly_trends, aes(x = Month)) +
+  geom_line(aes(y = Monthly_Avg_Total, color = "Total Demand"), size = 1) +
+  geom_line(aes(y = Monthly_Avg_Ruzgar, color = "Wind Production"), size = 1) +
+  labs(title = "Energy Production Trends (2025-2026)",
+       x = "Timeline", y = "Monthly Average (MWh)",
+       color = "Metric") +
+  theme_light()
 
+```
 This study has successfully mapped the operational complexities of Türkiye’s electricity grid between 2025 and 2026. By integrating exploratory data analysis, K-means clustering, and correlation mapping, the research provides a clear picture of the country's energy transition progress.
-
+```{r}
+```
 The findings confirm that while renewable penetration is growing, the grid’s reliability currently rests on the high flexibility of thermal and hydroelectric plants. The strong correlation between total demand and natural gas generation highlights a persistent dependency that must be addressed to meet long-term sustainability goals.
 
 In conclusion, for Türkiye to advance its renewable targets beyond the 15% threshold, future energy policies should prioritize investments in large-scale energy storage systems (BESS) and smart grid infrastructure. These technologies will be essential to mitigate the intermittency of wind and solar power, ensuring a secure, cost-effective, and carbon-neutral energy future.
