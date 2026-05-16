@@ -24,6 +24,8 @@ Access Link: ASKİ Transparency Portal
 ## 2.2 General Information About Data
 
 ![Fotoğraf Alt Yazısı](assets/clustring_.png)
+![](./assets/clustring.png)
+
 
 
 The dataset contains daily records of Ankara’s reservoirs. Key features include:
