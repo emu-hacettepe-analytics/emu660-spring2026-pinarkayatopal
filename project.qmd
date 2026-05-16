@@ -84,7 +84,8 @@ ggplot(hourly_trend, aes(x = Saat, y = Ortalama_Toplam_Uretim)) +
        subtitle = "Ocak 2025 - Mayıs 2026 Dönemi",
        x = "Günün Saati (0-23)",
        y = "Ortalama Üretim (MWh)") +
-  theme_minimal()```
+  theme_minimal()
+```
 
 ## 3.2 Clustering Analysis
 
