@@ -265,6 +265,14 @@ This section specifically analyzes the relationship between wind energy producti
 
 
 ```{r}
+ggplot(monthly_trends, aes(x = Month)) +
+  geom_line(aes(y = Monthly_Avg_Total, color = "Total Demand"), size = 1) +
+  geom_line(aes(y = Monthly_Avg_Ruzgar, color = "Wind Production"), size = 1) +
+  labs(title = "Energy Production Trends (2025-2026)",
+       x = "Timeline", y = "Monthly Average (MWh)",
+       color = "Metric") +
+  theme_light()
+
 ```
 
 ## 3.5 Correlation Analysis
