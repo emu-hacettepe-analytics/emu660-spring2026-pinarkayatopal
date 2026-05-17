@@ -91,41 +91,41 @@ print(colnames(Electricity_Cleaned))
 In this section, the general structure of the dataset was examined. Hourly observations revealed the daily consumption habits of the Turkish electricity grid and how various power sources respond to this demand. The initial statistical checks involved cleaning missing values, detecting outliers, and determining the general distribution of energy generation sources to ensure data integrity.
 Hourly Trend
 ```{r}
-#Gün içindeki değişim (Saatlik Trend)
-# Saatlik ortalama üretimi hesaplayalım
+#Hourly Trend
+# Saatlik ortalama uretimi hesaplayalim
 hourly_trend <- Electricity %>%
   mutate(Saat = hour(Tarih)) %>% 
   group_by(Saat) %>%
   summarise(Ortalama_Toplam_Uretim = mean(Toplam, na.rm = TRUE))
 
-# Görselleştirme
+# Visualisation
 ggplot(hourly_trend, aes(x = Saat, y = Ortalama_Toplam_Uretim)) +
   geom_line(color = "darkblue", size = 1) +
   geom_point(color = "red") +
   scale_x_continuous(breaks = 0:23) + # X eksenini 0'dan 23'e kadar gösterir
-  labs(title = "Gün İçinde Ortalama Elektrik Üretimi (Saatlik)",
-       subtitle = "Ocak 2025 - Mayıs 2026 Dönemi",
-       x = "Günün Saati (0-23)",
-       y = "Ortalama Üretim (MWh)") +
+  labs(title = "Hourly Trend",
+       subtitle = "January 2025 - May 2026",
+       x = "Hour (0-23)",
+       y = "Mean Productiction (MWh)") +
   theme_minimal()
 ```
 Monthly trend
 ```{r}
-# 1. Aylık ortalama üretimi hesaplayalım
+# 1. Monthly Trend
 monthly_trend <- Electricity %>%
-  mutate(Ay = month(Tarih, label = TRUE, abbr = TRUE, locale = "English")) %>% # Ay isimlerini İngilizce kısaltma yapar
+  mutate(Ay = month(Tarih, label = TRUE, abbr = TRUE, locale = "English")) %>% 
   group_by(Ay) %>%
   summarise(Aylik_Toplam_Uretim = mean(Toplam, na.rm = TRUE))
 
-# 2. Görselleştirme
-ggplot(monthly_trend, aes(x = Ay, y = Aylik_Toplam_Uretim, group = 1)) + # Çizgi çizmesi için group = 1 ekledik
+# 2. Visualization
+ggplot(monthly_trend, aes(x = Ay, y = Aylik_Toplam_Uretim, group = 1)) + # Cizgi cizmesi icin group = 1 ekledik
   geom_line(color = "steelblue", size = 1) +
   geom_point(color = "red") +
-  # scale_x_datetime yerine artık kategorik (discrete) bir eksenimiz olduğu için düzeltiyoruz:
+  # scale_x_datetime yerine kategorik (discrete) bir eksenimiz oldugu icin:
   labs(title = "Aylara Gore Toplam Elektrik Uretimi",
-       subtitle = "Mevsimsel Değişim Analizi",
-       x = "Ay",
-       y = "Toplam Üretim (MWh)") +
+       subtitle = "Monthly Trend",
+       x = "Month",
+       y = "Mean Productiction (MWh)") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
