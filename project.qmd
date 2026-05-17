@@ -58,6 +58,29 @@ Format Standardization: Date and time variables were converted into POSIXct form
 Normalization: For the clustering analysis, the data was scaled to have a mean of 0 and a standard deviation of 1, ensuring that high-volume sources (like Coal) do not disproportionately bias the machine learning models.
 
 Integration: Hourly metrics were aggregated into daily and monthly averages where necessary to observe long-term trends.
+```{r}
+library(tidyverse)
+
+# 1. Sütun isimlerini manuel olarak ve temiz bir şekilde tanımlayalım
+# Bu liste, paylaştığın görseldeki (Tarih, Saat, Toplam...) sıraya göredir.
+safe_names <- c(
+  "Tarih", "Saat", "Toplam", "Dogal_Gas", "Barajli", 
+  "Linyit", "Akarsu", "Ithal_Komur", "Ruzgar", "Gunes", 
+  "Fuel_Oil", "Jeotermal", "Asfaltit_Komur", "Tas_Komur", "Biyokutle", 
+  "Nafta", "LNG", "Uluslararasi", "Atik_Isi"
+)
+
+# 2. Veri setindeki isimleri güncelleme
+Electricity_Cleaned <- Electricity
+colnames(Electricity_Cleaned) <- safe_names
+
+# 3. Dosyayı kaydetme
+# write_csv fonksiyonu UTF-8 uyumludur ve sorun çıkarmaz
+write_csv(Electricity_Cleaned, "Electricity_Cleaned.csv")
+
+cat("İşlem başarıyla tamamlandı. Artık 'Electricity_Cleaned' verisini kullanabilirsin.\n")
+print(colnames(Electricity_Cleaned))
+```
 
 # 3. Analysis
 
